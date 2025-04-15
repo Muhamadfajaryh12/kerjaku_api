@@ -11,5 +11,9 @@ func SetupRoutes(app *fiber.App){
 	api.Post("/users",controllers.Register)
 	api.Post("/profile",controllers.InsertProfile)
 	api.Get("/profile/:id",controllers.GetProfile)
+	api.Post("/company",controllers.InsertCompany)
+	api.Get("/company",controllers.GetCompany)
+	api.Post("/vacancy",controllers.InsertVacancy)
+	api.Get("/vacancy",controllers.GetVacancy)
 
 }
