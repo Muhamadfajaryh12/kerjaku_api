@@ -46,7 +46,7 @@ func GetProfile (c *fiber.Ctx) error{
 		case gorm.ErrRecordNotFound:
 		return	c.Status(404).JSON(fiber.Map{"message":"Not Found"})
 		default :
-		return c.Status(400).JSON(fiber.Map{"Message":"Internal server Error"})
+		return c.SendStatus(fiber.ErrBadRequest.Code)
 	}
 }
 return c.JSON(profile)

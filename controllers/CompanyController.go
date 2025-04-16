@@ -11,7 +11,7 @@ import (
 func InsertCompany(c *fiber.Ctx) error {
 	var company models.Company
 	if err := c.BodyParser(&company) ; err != nil{
-		return c.Status(400).JSON(fiber.Map{"message":"invalid request"})
+		return c.SendStatus(fiber.StatusBadRequest)
 	}
 	photoUpload, err := c.FormFile("photo")
 	if err == nil{
