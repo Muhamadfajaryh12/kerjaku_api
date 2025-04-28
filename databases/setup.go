@@ -2,7 +2,6 @@ package databases
 
 import (
 	"fmt"
-	"kerjaku/models"
 	"log"
 
 	"gorm.io/driver/sqlserver"
@@ -29,6 +28,6 @@ func ConnectionDatabase(){
 		fmt.Println("Berhasil terkoneksi ke database!")	
 		// DB.Migrator().DropTable( &models.User{},&models.Company{}, &models.Profile{}, &models.Vacany{})
 
-		DB.AutoMigrate(&models.User{},&models.Company{}, &models.Profile{}, &models.Vacany{})
+		// DB.AutoMigrate(&models.User{},&models.Company{}, &models.Profile{}, &models.Vacany{})
 
 	}
