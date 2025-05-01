@@ -75,8 +75,36 @@ func DeleteCompany (c *fiber.Ctx) error {
 	}
 
 	databases.DB.Delete(&company,id)
-	return c.Status(fiber.StatusAccepted).JSON(fiber.Map{
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"message:":"Berhasil menghapus company",
 		"data":company,
+	})
+}
+
+func DetailCompany (c *fiber.Ctx) error{
+	id := c.Params("id")
+	var company models.Company
+	var vacancy []models.Vacancy
+
+	if err := databases.DB.Where("id = ? ", id).First(&company).Error ; err != nil {
+			return c.Status(fiber.ErrBadRequest.Code).JSON(fiber.Map{"message":"Data tidak ditemukan"})
+	}
+
+	 databases.DB.Where("id_company", id).Find(&vacancy)
+
+	 response := models.ICompanyVacancy{
+		ID:          company.ID,
+        CompanyName: company.CompanyName,
+        CompanyType: company.CompanyType,
+        Location:    company.Location,
+        Size:        company.Size,
+        Photo:       company.Photo,
+        Description: company.Description,
+		Vacancy: vacancy,
+	 }
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message":"Detail company",
+		"data":response,
 	})
 }

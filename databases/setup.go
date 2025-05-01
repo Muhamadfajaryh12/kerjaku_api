@@ -26,8 +26,8 @@ func ConnectionDatabase(){
 		}
 	
 		fmt.Println("Berhasil terkoneksi ke database!")	
-		// DB.Migrator().DropTable( &models.User{},&models.Company{}, &models.Profile{}, &models.Vacany{})
+		// DB.Migrator().DropTable( &models.User{},&models.Company{}, &models.Profile{}, &models.Vacancy{})
 
-		// DB.AutoMigrate(&models.User{},&models.Company{}, &models.Profile{}, &models.Vacany{})
+		// DB.AutoMigrate(&models.User{},&models.Company{}, &models.Profile{}, &models.Vacancy{})
 
 	}

@@ -11,24 +11,25 @@ import (
 
 func Register(c *fiber.Ctx) error {
 var user models.User
-	if err := c.BodyParser(&user); err != nil{
+var input models.User
+	if err := c.BodyParser(&input); err != nil{
 		return c.Status(fiber.StatusBadRequest).SendString("Bad Request")
 	}
 	
-	if err := utils.ValidateStruct(c,&user); err != nil{
+	if err := utils.ValidateStruct(c,&input); err != nil{
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"errors": err,
 		})
 	}
 
-	if err := databases.DB.Where("username = ?", user.Username).First(&user).Error; 
+	if err := databases.DB.Where("username = ?", input.Username).First(&user).Error; 
 	err == nil{
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"message": "Username sudah ada",
 		})
 	}
 
-	databases.DB.Create(&user)
+	databases.DB.Create(&input)
 	return c.Status(fiber.StatusCreated).JSON(fiber	.Map{
 		"message":"Berhasil membuat akun",
 	})
@@ -36,22 +37,30 @@ var user models.User
 
 func Login(c *fiber.Ctx) error{
 	var user models.User
-
-	if err := c.BodyParser(&user); err != nil{
+	var input  models.User
+	if err := c.BodyParser(&input); err != nil{
 		return c.Status(fiber.StatusBadRequest).SendString("Bad Request")
 	}
-	
 
-	if err := utils.ValidateStruct(c,&user); err != nil{
+	if err := utils.ValidateStruct(c,&input); err != nil{
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"errors": err,
 		})
 	}
 
-	if err := databases.DB.Where("username = ?", user.Username).First(&user).Error; 
+	if err := databases.DB.Where("username = ?", input.Username).First(&user).Error; 
 	err != nil{
 		return c.Status(fiber.StatusBadRequest).SendString("Username dan Password salah")
 	}
 
-	return c.JSON(user)
+	token, err := utils.GenerateToken(user.ID)
+
+	if err != nil{
+		return c.Status(fiber.StatusInternalServerError).SendString("Invalid token")
+	}
+	
+	return c.Status(fiber.StatusAccepted).JSON(fiber.Map{
+		"message":"Login berhasil",
+		"token":token,
+	})
 }

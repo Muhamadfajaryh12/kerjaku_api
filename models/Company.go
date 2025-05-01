@@ -10,3 +10,14 @@ type Company struct {
 	Description string `gorm:"type:varchar(255)" form:"description" json:"description"`
 	IDUser      int64  `gorm:"index" json:"id_user" form:"id_user"`
 }
+
+type ICompanyVacancy struct {
+	ID          int64     `json:"id" `
+	CompanyName string    `json:"company_name"`
+	CompanyType string    `json:"company_type"`
+	Location    string    `json:"location"`
+	Size        int64     `json:"size"`
+	Photo       string    `json:"photo"`
+	Description string    `json:"description"`
+	Vacancy     []Vacancy `json:"vacancy"`
+}
