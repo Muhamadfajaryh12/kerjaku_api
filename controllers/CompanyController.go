@@ -25,7 +25,7 @@ func InsertCompany(c *fiber.Ctx) error {
 	return c.JSON(company)
 }
 
-func GetCompany (c *fiber.Ctx) error{
+func GetCompany(c *fiber.Ctx) error{
 	var company []models.Company
 	if err := databases.DB.Find(&company).Error; err != nil {
 		return c.Status(500).JSON(fiber.Map{"message": "Gagal mengambil data"})
@@ -33,14 +33,13 @@ func GetCompany (c *fiber.Ctx) error{
 		return c.JSON(fiber.Map{"data":company})
 }
 
-func UpdateCompany (c *fiber.Ctx) error{
+func UpdateCompany(c *fiber.Ctx) error{
 	var company models.Company
 	id := c.Params("id")
 
 	if err := databases.DB.Where("id = ?", id).First(&company); err == nil{
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"message":"Company tidak ditemukan"})
 	}
-
 
 	var companyUpdate models.Company
 	if err := c.BodyParser(&companyUpdate) ; err != nil{
@@ -66,7 +65,7 @@ func UpdateCompany (c *fiber.Ctx) error{
 	})
 }
 
-func DeleteCompany (c *fiber.Ctx) error {
+func DeleteCompany(c *fiber.Ctx) error {
 	var company models.Company
 	id := c.Params("id")
 
@@ -81,7 +80,7 @@ func DeleteCompany (c *fiber.Ctx) error {
 	})
 }
 
-func DetailCompany (c *fiber.Ctx) error{
+func DetailCompany(c *fiber.Ctx) error{
 	id := c.Params("id")
 	var company models.Company
 	var vacancy []models.Vacancy
@@ -106,5 +105,18 @@ func DetailCompany (c *fiber.Ctx) error{
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"message":"Detail company",
 		"data":response,
+	})
+}
+
+func SearchCompany(c *fiber.Ctx) error{
+	query := c.Query("s")
+	var company []models.Company
+
+	if err := databases.DB.Where(`company_name LIKE ?`,"%"+query+"%").Find(&company); err != nil{
+		return c.Status(500).JSON(fiber.Map{"message": "Gagal mengambil data"})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"data":company,
 	})
 }

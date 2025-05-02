@@ -31,8 +31,15 @@ func SetupRoutes(app *fiber.App){
 	apiCompany := protectedRoute.Group("/company")
 	apiCompany.Post("/",controllers.InsertCompany)
 	apiCompany.Get("/",controllers.GetCompany)
+	apiCompany.Get("/search",controllers.SearchCompany)
 	apiCompany.Get("/:id",controllers.DetailCompany)
 	apiCompany.Put("/:id",controllers.UpdateCompany)
 	apiCompany.Delete("/:id",controllers.DeleteCompany)
+
+	apiApplication := protectedRoute.Group("/application")
+	apiApplication.Post("/",controllers.InsertApplication)
+	apiApplication.Get("/",controllers.GetApplication)
+	apiApplication.Put("/:id",controllers.UpdateApplication)
+	apiApplication.Delete("/:id",controllers.DeleteApplication)
 
 }
