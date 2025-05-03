@@ -59,7 +59,7 @@ func Login(c *fiber.Ctx) error{
 		return c.Status(fiber.StatusInternalServerError).SendString("Invalid token")
 	}
 	
-	return c.Status(fiber.StatusAccepted).JSON(fiber.Map{
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"message":"Login berhasil",
 		"token":token,
 	})

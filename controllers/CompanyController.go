@@ -59,7 +59,7 @@ func UpdateCompany(c *fiber.Ctx) error{
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"Message":"Gagal mengupdate company "})
 	}
 
-	return  c.Status(fiber.StatusAccepted).JSON(fiber.Map{
+	return  c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"message":"Berhasil mengupdate company",
 		"data": companyUpdate,
 	})

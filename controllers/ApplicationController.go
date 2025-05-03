@@ -32,7 +32,6 @@ func GetApplication(c *fiber.Ctx) error {
 		databases.DB.Where("id_user", userId).Find(&application)
 	}
 	
-	
 	if vacancyId != "" {
 		databases.DB.Where("id_vacancy",vacancyId).Find(&application)
 	}

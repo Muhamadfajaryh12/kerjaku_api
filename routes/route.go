@@ -19,6 +19,7 @@ func SetupRoutes(app *fiber.App){
 	apiProfile := protectedRoute.Group("/profile")
 	apiProfile.Post("",controllers.InsertProfile)
 	apiProfile.Get("/:id",controllers.GetProfile)
+	apiProfile.Put("/:id", controllers.UpdateProfile)
 
 	apiVacancy := protectedRoute.Group("/vacancy")
 	apiVacancy.Post("/",controllers.InsertVacancy)
