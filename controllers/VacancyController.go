@@ -36,25 +36,64 @@ func SearchVacancy(c *fiber.Ctx) error{
 
 func GetVacancy(c *fiber.Ctx) error {
 	var vacancy []models.Vacancy
+	var response []models.IVacancy
 	if err := databases.DB.Find(&vacancy).Error; err != nil {
 		return c.Status(500).JSON(fiber.Map{"message": "Gagal mengambil data"})
 	}
-	return c.JSON(fiber.Map{"data":vacancy})
+	for _, vacancy := range vacancy {
+        var company models.Company
+        if err := databases.DB.Where("id = ?", vacancy.IDCompany).First(&company).Error; err != nil {
+            company = models.Company{}
+        }
+		
+        response = append(response, models.IVacancy{
+            ID:          vacancy.ID,
+            NameVacancy: vacancy.NameVacancy,
+            Description: vacancy.Description,
+            Location:    vacancy.Location,
+            Qty:         vacancy.Qty,
+            Salary:      vacancy.Salary,
+            DateEnd:     vacancy.DateEnd,
+            DateStart:   vacancy.DateStart,
+            Status:      vacancy.Status,
+            IDCompany:   vacancy.IDCompany,
+            Company:     company,
+        })
+    }
+	return c.JSON(fiber.Map{"data":response})
 
 }
 
 func DetailVacancy(c *fiber.Ctx) error{
 	id := c.Params("id")
 	var vacancy models.Vacancy
+	var company models.Company
 
 	if err := databases.DB.Where("id = ? ", id).First(&vacancy).Error; err != nil{
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"message":"Vacancy tidak ditemukan",
 		})
 	}
+
+	databases.DB.Where("id", vacancy.IDCompany).First(&company)
+	
+	response := models.IVacancy{
+		ID: vacancy.ID,
+		NameVacancy: vacancy.NameVacancy,
+		Description: vacancy.Description,
+		Location: vacancy.Location,
+		Qty: vacancy.Qty,
+		Salary: vacancy.Salary,
+		DateEnd: vacancy.DateEnd,
+		DateStart: vacancy.DateStart,
+		Status: vacancy.Status,
+		IDCompany: vacancy.IDCompany,
+		Company: company,
+	}
+	
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"message":"Detail Vacancy",
-		"data":vacancy,
+		"data":response,
 	})
 }
 

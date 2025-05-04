@@ -4,14 +4,16 @@ import (
 	"kerjaku/databases"
 	"kerjaku/models"
 	"kerjaku/utils"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
 )
 
 func InsertProfile(c *fiber.Ctx) error{
-	var profile models.Profile
-	if err := c.BodyParser(&profile) ; err != nil{
+	var input models.Profile
+	
+	if err := c.BodyParser(&input) ; err != nil{
 		return c.Status(400).JSON(fiber.Map{"message":"invalid request"})
 	}
 
@@ -22,7 +24,7 @@ func InsertProfile(c *fiber.Ctx) error{
 		if err!= nil{
 			return c.Status(500).JSON(fiber.Map{"message":"Invalid "})
 		}
-		profile.CV = cvPath
+		input.CV = cvPath
 	}
 	
 	photoUpload, err := c.FormFile("photo")
@@ -31,13 +33,20 @@ func InsertProfile(c *fiber.Ctx) error{
 		if err!= nil{
 			return c.Status(500).JSON(fiber.Map{"message":"Invalid "})
 		}
-		profile.Photo = photoPath
+		input.Photo = photoPath
 	}
 
-	databases.DB.Create(&profile)
+	if err := utils.ValidateStruct(c,&input); err != nil{
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"errors": err,
+		})
+	}
+
+
+	databases.DB.Create(&input)
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"message":"Berhasil membuat profile",
-		"data":profile,
+		"data":input,
 	})
 
 }
@@ -59,38 +68,51 @@ func GetProfile(c *fiber.Ctx) error{
 func UpdateProfile(c *fiber.Ctx) error {
 	id := c.Params("id")
 	var profile models.Profile
+	var input models.Profile
 
-	if err := c.BodyParser(&profile) ; err != nil{
+	if err := c.BodyParser(&input) ; err != nil{
 		return c.Status(400).JSON(fiber.Map{"message":"invalid request"})
 	}
 	
+	databases.DB.Where("id = ?", id).First(&profile)
+
 	cvUpload, err := c.FormFile("cv")
 	
 	if err == nil && cvUpload != nil{
+		utils.DeleteFile(strings.ReplaceAll(profile.CV, "/", "\\"))
+
 		cvPath,err := utils.UploadFile(cvUpload,"cv")
 		if err!= nil{
 			return c.Status(500).JSON(fiber.Map{"message":"Invalid "})
 		}
-		profile.CV = cvPath
+		input.CV = cvPath
 	}
 	
 	photoUpload, err := c.FormFile("photo")
 
 	if err == nil && photoUpload != nil{
+		utils.DeleteFile(strings.ReplaceAll(profile.Photo, "/", "\\"))
+	
+
 		photoPath,err := utils.UploadFile(photoUpload,"photo")
 		if err!= nil{
 			return c.Status(500).JSON(fiber.Map{"message":"Invalid "})
 		}
-		profile.Photo = photoPath
+		input.Photo = photoPath
 	}
 
+	if err := utils.ValidateStruct(c,&input); err != nil{
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"errors": err,
+		})
+	}
 
-	if databases.DB.Model(&profile).Where("id = ?", id).Updates(&profile).RowsAffected == 0 {
+	if databases.DB.Model(&profile).Updates(&input).RowsAffected == 0 {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"Message":"Gagal mengupdate profile "})
 	}
 
 	return  c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"message":"Berhasil mengupdate profile",
-		"data": profile,
+		"data": input,
 	})
 }

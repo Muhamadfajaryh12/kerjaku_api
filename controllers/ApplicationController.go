@@ -27,13 +27,13 @@ func GetApplication(c *fiber.Ctx) error {
 	userId := c.Query("user")
 	vacancyId := c.Query("vacancy")
 	var application []models.Application
-
+	
 	if userId != "" {
-		databases.DB.Where("id_user", userId).Find(&application)
+		databases.DB.Where("id_user", userId).Preload("Profile").Preload("Vacancy").Find(&application)
 	}
 	
 	if vacancyId != "" {
-		databases.DB.Where("id_vacancy",vacancyId).Find(&application)
+		databases.DB.Where("id_vacancy",vacancyId).Preload("Profile").Preload("Vacancy").Find(&application)
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
@@ -63,12 +63,12 @@ func DeleteApplication(c *fiber.Ctx) error {
 	id := c.Params("id")	
 	var application models.Application
 
-	if err := databases.DB.Delete(&application,id); err != nil{
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"message":"Internal server error",
-		})
+	if err := databases.DB.Where("id = ?", id).First(&application); err == nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"message":"Application tidak ditemukan"})
 	}
 
+	databases.DB.Delete(&application,id)
+	
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"message":"Berhasil menghapus application",
 		"data":application,

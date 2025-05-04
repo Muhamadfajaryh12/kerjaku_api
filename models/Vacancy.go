@@ -19,7 +19,7 @@ type Vacancy struct {
 }
 
 
-type VacancyResponse struct {
+type IVacancy struct {
     ID          int64     `json:"id"`
     NameVacancy string    `json:"name_vacancy"`
     Description string    `json:"description"`
@@ -30,4 +30,5 @@ type VacancyResponse struct {
     DateStart   time.Time `json:"date_start"`
     Status      string    `json:"status"`
     IDCompany   int64     `json:"id_company"`
+	Company 	Company	  `json:"company"`
 }

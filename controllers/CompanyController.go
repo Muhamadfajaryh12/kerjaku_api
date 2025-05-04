@@ -4,6 +4,7 @@ import (
 	"kerjaku/databases"
 	"kerjaku/models"
 	"kerjaku/utils"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -21,6 +22,13 @@ func InsertCompany(c *fiber.Ctx) error {
 		}
 		company.Photo = photoPath
 	}
+
+	if err := utils.ValidateStruct(c,&company); err != nil{
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"errors": err,
+		})
+	}
+
 	databases.DB.Create(&company)
 	return c.JSON(company)
 }
@@ -35,33 +43,43 @@ func GetCompany(c *fiber.Ctx) error{
 
 func UpdateCompany(c *fiber.Ctx) error{
 	var company models.Company
+	var input models.Company
+
 	id := c.Params("id")
 
 	if err := databases.DB.Where("id = ?", id).First(&company); err == nil{
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"message":"Company tidak ditemukan"})
 	}
 
-	var companyUpdate models.Company
-	if err := c.BodyParser(&companyUpdate) ; err != nil{
+
+	if err := c.BodyParser(&input) ; err != nil{
 		return c.SendStatus(fiber.StatusBadRequest)
 	}
 
 	photoUpload, err := c.FormFile("photo")
-	if err == nil{
+	if err == nil && photoUpload != nil{
+		utils.DeleteFile(strings.ReplaceAll(company.Photo, "/", "\\"))
+
 		photoPath,err := utils.UploadFile(photoUpload,"photo")
 		if err!= nil{
 			return c.Status(500).JSON(fiber.Map{"message":"Invalid "})
 		}
-		companyUpdate.Photo = photoPath
+		input.Photo = photoPath
 	}
 	
-	if  databases.DB.Model(&companyUpdate).Where("id = ?", id).Updates(&companyUpdate).RowsAffected == 0 {
+	if err := utils.ValidateStruct(c,&input); err != nil{
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"errors": err,
+		})
+	}
+
+	if  databases.DB.Model(&company).Updates(&input).RowsAffected == 0 {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"Message":"Gagal mengupdate company "})
 	}
 
 	return  c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"message":"Berhasil mengupdate company",
-		"data": companyUpdate,
+		"data": input,
 	})
 }
 

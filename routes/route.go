@@ -43,4 +43,5 @@ func SetupRoutes(app *fiber.App){
 	apiApplication.Put("/:id",controllers.UpdateApplication)
 	apiApplication.Delete("/:id",controllers.DeleteApplication)
 
+
 }
