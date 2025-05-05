@@ -6,6 +6,7 @@ import (
 	"kerjaku/utils"
 
 	"github.com/gofiber/fiber/v2"
+	"golang.org/x/crypto/bcrypt"
 )
 
 
@@ -29,6 +30,15 @@ var input models.User
 		})
 	}
 
+	hash, err := bcrypt.GenerateFromPassword([]byte(input.Password),bcrypt.DefaultCost)
+	if err != nil{
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"errors": err,
+		})
+	}
+
+	input.Password = string(hash)
+
 	databases.DB.Create(&input)
 	return c.Status(fiber.StatusCreated).JSON(fiber	.Map{
 		"message":"Berhasil membuat akun",
@@ -50,6 +60,10 @@ func Login(c *fiber.Ctx) error{
 
 	if err := databases.DB.Where("username = ?", input.Username).First(&user).Error; 
 	err != nil{
+		return c.Status(fiber.StatusBadRequest).SendString("Username dan Password salah")
+	}
+
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password),[]byte(input.Password)); err != nil{
 		return c.Status(fiber.StatusBadRequest).SendString("Username dan Password salah")
 	}
 

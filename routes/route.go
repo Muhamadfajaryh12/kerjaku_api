@@ -14,26 +14,29 @@ func SetupRoutes(app *fiber.App){
 	api.Post("/users",controllers.Register)
 	api.Post("/login",controllers.Login)
 
+	api.Get("profile/:id",controllers.GetProfile)
+
+	api.Get("vacancy/",controllers.GetVacancy)
+	api.Get("vacancy/search",controllers.SearchVacancy)
+	api.Get("vacancy/:id",controllers.DetailVacancy)
+
+	api.Get("company/",controllers.GetCompany)
+	api.Get("company/search",controllers.SearchCompany)
+	api.Get("company/:id",controllers.DetailCompany)
+
 	protectedRoute := api.Use(middlewares.AuthorizationMiddleware())
 
 	apiProfile := protectedRoute.Group("/profile")
 	apiProfile.Post("",controllers.InsertProfile)
-	apiProfile.Get("/:id",controllers.GetProfile)
 	apiProfile.Put("/:id", controllers.UpdateProfile)
 
 	apiVacancy := protectedRoute.Group("/vacancy")
 	apiVacancy.Post("/",controllers.InsertVacancy)
-	apiVacancy.Get("/",controllers.GetVacancy)
-	apiVacancy.Get("/search",controllers.SearchVacancy)
-	apiVacancy.Get("/:id",controllers.DetailVacancy)
 	apiVacancy.Put("/:id",controllers.UpdateVacancy)
 	apiVacancy.Delete("/:id",controllers.DeleteVacancy)
 	
 	apiCompany := protectedRoute.Group("/company")
 	apiCompany.Post("/",controllers.InsertCompany)
-	apiCompany.Get("/",controllers.GetCompany)
-	apiCompany.Get("/search",controllers.SearchCompany)
-	apiCompany.Get("/:id",controllers.DetailCompany)
 	apiCompany.Put("/:id",controllers.UpdateCompany)
 	apiCompany.Delete("/:id",controllers.DeleteCompany)
 
