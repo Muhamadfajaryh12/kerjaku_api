@@ -14,8 +14,10 @@ type Vacancy struct {
 	DateEnd     time.Time `gorm:"type:date" form:"date_end" json:"date_end" validate:"required"`
 	DateStart 	time.Time `gorm:"type:date" form:"date_start" json:"date_start" validate:"required"`
 	Status		string 	  `gorm:"varchar(255)" form:"status" json:"status"`
+	Type 		string 	  `gorm:"varchar(255)" form:"type" json:"type"`
+	Category 	string 	  `gorm:"varchar(255)" form:"category" json:"category"`
 	IDCompany 	int64	  `gorm:"index" form:"id_company" json:"id_company"`
-	// Company 	Company    `gorm:"foreignKey:IDCompany" json:"company"`			
+	Company 	Company    `gorm:"foreignKey:IDCompany" json:"company"`			
 }
 
 
@@ -29,6 +31,16 @@ type IVacancy struct {
     DateEnd     time.Time `json:"date_end"`
     DateStart   time.Time `json:"date_start"`
     Status      string    `json:"status"`
+	Type 		string	  `json:"type"`
+	Category    string	  `json:"category"`
     IDCompany   int64     `json:"id_company"`
 	Company 	Company	  `json:"company"`
+}
+
+type VacancyFilter struct {
+	Search 	string `query:"search"`
+	Location string `query:"location"`
+	Status   string `query:"status"`
+    Category string `query:"category"`
+	Type 	 string `query:"type"`
 }

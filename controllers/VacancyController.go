@@ -4,6 +4,7 @@ import (
 	"kerjaku/databases"
 	"kerjaku/models"
 	"kerjaku/utils"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -20,13 +21,56 @@ func InsertVacancy(c *fiber.Ctx) error {
 	return c.JSON(vacancy)
 }
 
-func SearchVacancy(c *fiber.Ctx) error{
-	query := c.Query("s")
-	var vacancy []models.Vacancy
+
+func SearchFilterVacancy(c *fiber.Ctx) error{
+	var filter models.VacancyFilter
+	c.QueryParser(&filter)
 	
-	if err := databases.DB.Where("name_vacancy LIKE ?", "%"+query+"%").Find(&vacancy).Error ; err != nil{
-		return c.Status(500).JSON(fiber.Map{"message": "Gagal mengambil data"})
-	}
+	var vacancy []models.Vacancy
+	query := databases.DB.
+        Joins("JOIN companies ON companies.id = vacancies.id_company").
+        Preload("Company")
+
+    if filter.Category != "" {
+        categories := strings.Split(filter.Category, ",")
+        if len(categories) > 1 {
+            query = query.Where("vacancies.category IN ?", categories)
+        } else {
+            query = query.Where("vacancies.category = ?", filter.Category)
+        }
+    }
+
+    if filter.Location != "" {
+        locations := strings.Split(filter.Location, ",")
+        if len(locations) > 1 {
+            query = query.Where("vacancies.location IN ?", locations)
+        } else {
+            query = query.Where("vacancies.location = ?", filter.Location)
+        }
+    }
+
+    if filter.Type != "" {
+        types := strings.Split(filter.Type, ",")
+        if len(types) > 1 {
+            query = query.Where("vacancies.type IN ?", types)
+        } else {
+            query = query.Where("vacancies.type = ?", filter.Type)
+        }
+    }
+
+    if filter.Status != "" {
+        query = query.Where("vacancies.status = ?", filter.Status)
+    }
+
+	if filter.Search != ""{
+		query = query.Where("vacancies.name_vacancy LIKE ?", "%"+filter.Search+"%")
+	} 
+
+    if err := query.Find(&vacancy).Error; err != nil {
+        return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+            "error": "Failed to fetch vacancies",
+        })
+    }
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"data":vacancy,
@@ -36,31 +80,31 @@ func SearchVacancy(c *fiber.Ctx) error{
 
 func GetVacancy(c *fiber.Ctx) error {
 	var vacancy []models.Vacancy
-	var response []models.IVacancy
-	if err := databases.DB.Find(&vacancy).Error; err != nil {
+	// var response []models.IVacancy
+	if err := databases.DB.Preload("Company").Find(&vacancy).Error; err != nil {
 		return c.Status(500).JSON(fiber.Map{"message": "Gagal mengambil data"})
 	}
-	for _, vacancy := range vacancy {
-        var company models.Company
-        if err := databases.DB.Where("id = ?", vacancy.IDCompany).First(&company).Error; err != nil {
-            company = models.Company{}
-        }
+	// for _, vacancy := range vacancy {
+    //     var company models.Company
+    //     if err := databases.DB.Where("id = ?", vacancy.IDCompany).First(&company).Error; err != nil {
+    //         company = models.Company{}
+    //     }
 		
-        response = append(response, models.IVacancy{
-            ID:          vacancy.ID,
-            NameVacancy: vacancy.NameVacancy,
-            Description: vacancy.Description,
-            Location:    vacancy.Location,
-            Qty:         vacancy.Qty,
-            Salary:      vacancy.Salary,
-            DateEnd:     vacancy.DateEnd,
-            DateStart:   vacancy.DateStart,
-            Status:      vacancy.Status,
-            IDCompany:   vacancy.IDCompany,
-            Company:     company,
-        })
-    }
-	return c.JSON(fiber.Map{"data":response})
+    //     response = append(response, models.IVacancy{
+    //         ID:          vacancy.ID,
+    //         NameVacancy: vacancy.NameVacancy,
+    //         Description: vacancy.Description,
+    //         Location:    vacancy.Location,
+    //         Qty:         vacancy.Qty,
+    //         Salary:      vacancy.Salary,
+    //         DateEnd:     vacancy.DateEnd,
+    //         DateStart:   vacancy.DateStart,
+    //         Status:      vacancy.Status,
+    //         IDCompany:   vacancy.IDCompany,
+    //         Company:     company,
+    //     })
+    // }
+	return c.JSON(fiber.Map{"data":vacancy})
 
 }
 

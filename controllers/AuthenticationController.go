@@ -60,11 +60,11 @@ func Login(c *fiber.Ctx) error{
 
 	if err := databases.DB.Where("username = ?", input.Username).First(&user).Error; 
 	err != nil{
-		return c.Status(fiber.StatusBadRequest).SendString("Username dan Password salah")
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message":"Username dan Password salah"})
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password),[]byte(input.Password)); err != nil{
-		return c.Status(fiber.StatusBadRequest).SendString("Username dan Password salah")
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message":"Username dan Password salah"})
 	}
 
 	token, err := utils.GenerateToken(user.ID)

@@ -8,6 +8,8 @@ import (
 )
 
 func SetupRoutes(app *fiber.App){
+	app.Static("uploads","./uploads")
+
 	api := app.Group("/api")
 
 
@@ -16,11 +18,13 @@ func SetupRoutes(app *fiber.App){
 
 	api.Get("profile/:id",controllers.GetProfile)
 
-	api.Get("vacancy/",controllers.GetVacancy)
-	api.Get("vacancy/search",controllers.SearchVacancy)
+	api.Get("vacancy",controllers.GetVacancy)
+	api.Get("vacancy/searchfilter",controllers.SearchFilterVacancy)
 	api.Get("vacancy/:id",controllers.DetailVacancy)
 
-	api.Get("company/",controllers.GetCompany)
+	api.Get("category",controllers.CategoryController)
+
+	api.Get("company",controllers.GetCompany)
 	api.Get("company/search",controllers.SearchCompany)
 	api.Get("company/:id",controllers.DetailCompany)
 
