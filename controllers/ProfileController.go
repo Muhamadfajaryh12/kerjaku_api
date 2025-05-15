@@ -54,14 +54,23 @@ func InsertProfile(c *fiber.Ctx) error{
 func GetProfile(c *fiber.Ctx) error{
 	var profile models.Profile
 	id := c.Params("id")
-	if err := databases.DB.Where("id_user = ?" , id).First(&profile).Error; err!= nil{
-		switch err{
-		case gorm.ErrRecordNotFound:
-		return	c.Status(fiber.StatusNotFound).JSON(fiber.Map{"message":"Not Found"})
-		default :
-		return c.SendStatus(fiber.ErrBadRequest.Code)
-		}
-	}
+	    if err := databases.DB.
+        Preload("Experience").
+        Where("id_user = ?", id).
+        First(&profile).Error; err != nil {
+        
+        switch err {
+        case gorm.ErrRecordNotFound:
+            return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+                "message": "Profile not found",
+            })
+        default:
+            return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+                "message": "Error retrieving profile",
+                "error":   err.Error(),
+            })
+        }
+    }
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"data":profile})
 }
 

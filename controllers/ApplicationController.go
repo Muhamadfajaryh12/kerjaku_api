@@ -3,6 +3,8 @@ package controllers
 import (
 	"kerjaku/databases"
 	"kerjaku/models"
+	"kerjaku/utils"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -11,9 +13,20 @@ func InsertApplication(c *fiber.Ctx) error {
 	var application models.Application
 	var input models.Application
 
+	coverLetter, err := c.FormFile("cover_letter")
+
+	if err == nil{
+		coverLetterPath,err := utils.UploadFile(coverLetter,"cover_letter")
+		if err!= nil{
+			return c.Status(500).JSON(fiber.Map{"message":"Invalid "})
+		}
+		input.CoverLetter = coverLetterPath
+	}
+
 	if err := c.BodyParser(&input); err != nil{
 		return c.Status(400).JSON(fiber.Map{"message":err.Error()})
 	}
+
 	input.Status = "Menunggu"
 	databases.DB.Create(&input).Find(&application)
 	
@@ -29,11 +42,11 @@ func GetApplication(c *fiber.Ctx) error {
 	var application []models.Application
 	
 	if userId != "" {
-		databases.DB.Where("id_user", userId).Preload("Profile").Preload("Vacancy").Find(&application)
+		databases.DB.Where("id_user", userId).Preload("Profile.Experience").Preload("Vacancy.Company").Find(&application)
 	}
 	
 	if vacancyId != "" {
-		databases.DB.Where("id_vacancy",vacancyId).Preload("Profile").Preload("Vacancy").Find(&application)
+		databases.DB.Where("id_vacancy",vacancyId).Preload("Profile.Experience").Preload("Vacancy.Company").Find(&application)
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
@@ -65,7 +78,9 @@ func DeleteApplication(c *fiber.Ctx) error {
 
 	if err := databases.DB.Where("id = ?", id).First(&application); err == nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"message":"Application tidak ditemukan"})
-	}
+	}	
+
+	utils.DeleteFile(strings.ReplaceAll(application.CoverLetter,"/","\\"))
 
 	databases.DB.Delete(&application,id)
 	

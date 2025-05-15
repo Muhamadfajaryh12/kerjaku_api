@@ -111,33 +111,14 @@ func GetVacancy(c *fiber.Ctx) error {
 func DetailVacancy(c *fiber.Ctx) error{
 	id := c.Params("id")
 	var vacancy models.Vacancy
-	var company models.Company
-
-	if err := databases.DB.Where("id = ? ", id).First(&vacancy).Error; err != nil{
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"message":"Vacancy tidak ditemukan",
-		})
-	}
-
-	databases.DB.Where("id", vacancy.IDCompany).First(&company)
-	
-	response := models.IVacancy{
-		ID: vacancy.ID,
-		NameVacancy: vacancy.NameVacancy,
-		Description: vacancy.Description,
-		Location: vacancy.Location,
-		Qty: vacancy.Qty,
-		Salary: vacancy.Salary,
-		DateEnd: vacancy.DateEnd,
-		DateStart: vacancy.DateStart,
-		Status: vacancy.Status,
-		IDCompany: vacancy.IDCompany,
-		Company: company,
+		if err := databases.DB.Joins("JOIN companies ON companies.id = vacancies.id_company").
+        Preload("Company").Where("vacancies.id = ?",id).Find(&vacancy).Error; err != nil {
+		return c.Status(500).JSON(fiber.Map{"message": "Gagal mengambil data"})
 	}
 	
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"message":"Detail Vacancy",
-		"data":response,
+		"data":vacancy,
 	})
 }
 
