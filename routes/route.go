@@ -29,6 +29,7 @@ func SetupRoutes(app *fiber.App){
 	api.Get("company/:id",controllers.DetailCompany)
 
 	apiExperience := api.Group("/experience")
+	apiExperience.Get("/:id",controllers.DetailExperience)
 	apiExperience.Post("/", controllers.InsertExperience)
 	apiExperience.Put("/:id",controllers.UpdateExperience)
 	apiExperience.Delete("/:id",controllers.DeleteExperience)
