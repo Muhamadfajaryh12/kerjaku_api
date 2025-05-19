@@ -111,8 +111,7 @@ func GetVacancy(c *fiber.Ctx) error {
 func DetailVacancy(c *fiber.Ctx) error{
 	id := c.Params("id")
 	var vacancy models.Vacancy
-		if err := databases.DB.Joins("JOIN companies ON companies.id = vacancies.id_company").
-        Preload("Company").Where("vacancies.id = ?",id).Find(&vacancy).Error; err != nil {
+		if err := databases.DB.Preload("Company").Where("vacancies.id = ?",id).Find(&vacancy).Error; err != nil {
 		return c.Status(500).JSON(fiber.Map{"message": "Gagal mengambil data"})
 	}
 	

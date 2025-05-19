@@ -13,8 +13,11 @@ type Vacancy struct {
 	Salary      int64     `gorm:"int" form:"salary" json:"salary" validate:"required"`
 	DateEnd     time.Time `gorm:"type:date" form:"date_end" json:"date_end" validate:"required"`
 	DateStart 	time.Time `gorm:"type:date" form:"date_start" json:"date_start" validate:"required"`
-	Status		string 	  `gorm:"varchar(255)" form:"status" json:"status"`
-	Type 		string 	  `gorm:"varchar(255)" form:"type" json:"type"`
+	Status		string 	  `gorm:"varchar(255)" form:"status" json:"status" validate:"required`
+	Type 		string 	  `gorm:"varchar(255)" form:"type" json:"type" validate:"required"`
+	Education	string	  `gorm:"varchar(255)" form:"education" json:"education" validate:"required"`
+	ExperienceTime string `gorm:"varchar(255)" form:"experience_time" json:"experience_time" validate:"required"`
+	AtWhere		string     `gorm:"varchar(255)" form:"at_where" json:"at_where" validate:"required"`
 	Category 	string 	  `gorm:"varchar(255)" form:"category" json:"category"`
 	IDCompany 	int64	  `gorm:"index" form:"id_company" json:"id_company"`
 	Company 	Company    `gorm:"foreignKey:IDCompany" json:"company"`			
@@ -31,6 +34,9 @@ type IVacancy struct {
     DateEnd     time.Time `json:"date_end"`
     DateStart   time.Time `json:"date_start"`
     Status      string    `json:"status"`
+	Education	string `json:"education" `
+	ExperienceTime string  `json:"experience_time" `
+	AtWhere		string     `json:"at_where" `
 	Type 		string	  `json:"type"`
 	Category    string	  `json:"category"`
     IDCompany   int64     `json:"id_company"`
