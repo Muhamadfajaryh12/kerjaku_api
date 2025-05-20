@@ -5,6 +5,7 @@ import (
 	"kerjaku/models"
 	"kerjaku/utils"
 	"strings"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -28,6 +29,7 @@ func InsertApplication(c *fiber.Ctx) error {
 	}
 
 	input.Status = "Menunggu"
+	input.Date = time.Now()
 	databases.DB.Create(&input).Find(&application)
 	
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
@@ -42,7 +44,7 @@ func GetApplication(c *fiber.Ctx) error {
 	var application []models.Application
 	
 	if userId != "" {
-		databases.DB.Where("id_user", userId).Preload("Profile.Experience").Preload("Vacancy.Company").Find(&application)
+		databases.DB.Where("id_profile", userId).Preload("Profile.Experience").Preload("Vacancy.Company").Find(&application)
 	}
 	
 	if vacancyId != "" {
@@ -55,6 +57,16 @@ func GetApplication(c *fiber.Ctx) error {
 	})
 }
 
+func GetDetailApplication(c *fiber.Ctx) error{
+		id := c.Params("id")
+		var application models.Application
+
+		databases.DB.Where("id",id).Preload("Profile.Experience").Find(&application)
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{
+			"message":"Detail application",
+			"data":application,
+		})
+}
 func UpdateApplication(c *fiber.Ctx) error{
 	id:= c.Params("id")
 	var input models.Application

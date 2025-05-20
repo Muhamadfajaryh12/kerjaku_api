@@ -13,7 +13,7 @@ type Vacancy struct {
 	Salary      int64     `gorm:"int" form:"salary" json:"salary" validate:"required"`
 	DateEnd     time.Time `gorm:"type:date" form:"date_end" json:"date_end" validate:"required"`
 	DateStart 	time.Time `gorm:"type:date" form:"date_start" json:"date_start" validate:"required"`
-	Status		string 	  `gorm:"varchar(255)" form:"status" json:"status" validate:"required`
+	Status		string 	  `gorm:"varchar(255)" form:"status" json:"status" validate:"required"`
 	Type 		string 	  `gorm:"varchar(255)" form:"type" json:"type" validate:"required"`
 	Education	string	  `gorm:"varchar(255)" form:"education" json:"education" validate:"required"`
 	ExperienceTime string `gorm:"varchar(255)" form:"experience_time" json:"experience_time" validate:"required"`

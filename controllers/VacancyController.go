@@ -18,7 +18,10 @@ func InsertVacancy(c *fiber.Ctx) error {
 	databases.DB.Create(&vacancy)
 
 	databases.DB.Preload("Company").First(&vacancy, vacancy.ID)
-	return c.JSON(vacancy)
+	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
+		"message":"Berhasil membuat lowongan",
+		"data":vacancy,
+	})
 }
 
 

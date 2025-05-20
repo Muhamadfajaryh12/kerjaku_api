@@ -53,6 +53,7 @@ func SetupRoutes(app *fiber.App){
 	apiApplication := protectedRoute.Group("/application")
 	apiApplication.Post("/",controllers.InsertApplication)
 	apiApplication.Get("/",controllers.GetApplication)
+	apiApplication.Get("/:id",controllers.GetDetailApplication)
 	apiApplication.Put("/:id",controllers.UpdateApplication)
 	apiApplication.Delete("/:id",controllers.DeleteApplication)
 
