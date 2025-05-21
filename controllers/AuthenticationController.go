@@ -48,6 +48,7 @@ var input models.User
 func Login(c *fiber.Ctx) error{
 	var user models.User
 	var input  models.User
+	var profile models.Profile
 	if err := c.BodyParser(&input); err != nil{
 		return c.Status(fiber.StatusBadRequest).SendString("Bad Request")
 	}
@@ -72,10 +73,13 @@ func Login(c *fiber.Ctx) error{
 	if err != nil{
 		return c.Status(fiber.StatusInternalServerError).SendString("Invalid token")
 	}
+
+	databases.DB.Where("id_user",user.ID).First(&profile)
 	
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"message":"Login berhasil",
 		"token":token,
 		"id":user.ID,
+		"id_profile":profile.ID,
 	})
 }

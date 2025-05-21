@@ -12,7 +12,8 @@ import (
 
 func InsertProfile(c *fiber.Ctx) error{
 	var input models.Profile
-	
+	var profile models.Profile
+
 	if err := c.BodyParser(&input) ; err != nil{
 		return c.Status(400).JSON(fiber.Map{"message":"invalid request"})
 	}
@@ -44,9 +45,10 @@ func InsertProfile(c *fiber.Ctx) error{
 
 
 	databases.DB.Create(&input)
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+	databases.DB.Where("id_user", input.IDUser).First(&profile)
+	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
 		"message":"Berhasil membuat profile",
-		"data":input,
+		"data":profile,
 	})
 
 }
@@ -57,6 +59,7 @@ func GetProfile(c *fiber.Ctx) error{
 	    if err := databases.DB.
         Preload("Experience").
         Where("id_user = ?", id).
+		Omit("Application").
         First(&profile).Error; err != nil {
         
         switch err {
@@ -86,7 +89,7 @@ func UpdateProfile(c *fiber.Ctx) error {
 	databases.DB.Where("id = ?", id).First(&profile)
 
 	cvUpload, err := c.FormFile("cv")
-	
+
 	if err == nil && cvUpload != nil{
 		utils.DeleteFile(strings.ReplaceAll(profile.CV, "/", "\\"))
 
@@ -95,6 +98,8 @@ func UpdateProfile(c *fiber.Ctx) error {
 			return c.Status(500).JSON(fiber.Map{"message":"Invalid "})
 		}
 		input.CV = cvPath
+	}else{
+		input.CV = profile.CV
 	}
 	
 	photoUpload, err := c.FormFile("photo")
@@ -108,6 +113,8 @@ func UpdateProfile(c *fiber.Ctx) error {
 			return c.Status(500).JSON(fiber.Map{"message":"Invalid "})
 		}
 		input.Photo = photoPath
+	} else {
+		input.Photo = profile.Photo
 	}
 
 	if err := utils.ValidateStruct(c,&input); err != nil{

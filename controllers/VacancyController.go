@@ -32,7 +32,7 @@ func SearchFilterVacancy(c *fiber.Ctx) error{
 	var vacancy []models.Vacancy
 	query := databases.DB.
         Joins("JOIN companies ON companies.id = vacancies.id_company").
-        Preload("Company")
+        Preload("Company").Where("vacancies.status = Open").Order("vacancies.id DESC")
 
     if filter.Category != "" {
         categories := strings.Split(filter.Category, ",")
