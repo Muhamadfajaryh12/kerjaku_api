@@ -43,7 +43,7 @@ func GetCompany(c *fiber.Ctx) error{
 
 func UpdateCompany(c *fiber.Ctx) error{
 	var company models.Company
-	var input models.Company
+	var input models.UpdateCompany
 
 	id := c.Params("id")
 
@@ -65,6 +65,8 @@ func UpdateCompany(c *fiber.Ctx) error{
 			return c.Status(500).JSON(fiber.Map{"message":"Invalid "})
 		}
 		input.Photo = photoPath
+	} else {
+		input.Photo = company.Photo
 	}
 	
 	if err := utils.ValidateStruct(c,&input); err != nil{
@@ -72,14 +74,14 @@ func UpdateCompany(c *fiber.Ctx) error{
 			"errors": err,
 		})
 	}
-
+	
 	if  databases.DB.Model(&company).Updates(&input).RowsAffected == 0 {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"Message":"Gagal mengupdate company "})
 	}
 
 	return  c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"message":"Berhasil mengupdate company",
-		"data": input,
+		"data": company,
 	})
 }
 

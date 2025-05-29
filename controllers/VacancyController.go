@@ -3,7 +3,6 @@ package controllers
 import (
 	"kerjaku/databases"
 	"kerjaku/models"
-	"kerjaku/utils"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
@@ -25,14 +24,14 @@ func InsertVacancy(c *fiber.Ctx) error {
 }
 
 
-func SearchFilterVacancy(c *fiber.Ctx) error{
+func GetVacancy(c *fiber.Ctx) error{
 	var filter models.VacancyFilter
 	c.QueryParser(&filter)
 	
 	var vacancy []models.Vacancy
 	query := databases.DB.
         Joins("JOIN companies ON companies.id = vacancies.id_company").
-        Preload("Company").Where("vacancies.status = Open").Order("vacancies.id DESC")
+        Preload("Company").Where("vacancies.status = ?","Open").Order("vacancies.id DESC")
 
     if filter.Category != "" {
         categories := strings.Split(filter.Category, ",")
@@ -69,6 +68,7 @@ func SearchFilterVacancy(c *fiber.Ctx) error{
 		query = query.Where("vacancies.name_vacancy LIKE ?", "%"+filter.Search+"%")
 	} 
 
+
     if err := query.Find(&vacancy).Error; err != nil {
         return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
             "error": "Failed to fetch vacancies",
@@ -81,46 +81,68 @@ func SearchFilterVacancy(c *fiber.Ctx) error{
 
 }
 
-func GetVacancy(c *fiber.Ctx) error {
-	var vacancy []models.Vacancy
-	// var response []models.IVacancy
-	if err := databases.DB.Preload("Company").Find(&vacancy).Error; err != nil {
-		return c.Status(500).JSON(fiber.Map{"message": "Gagal mengambil data"})
-	}
-	// for _, vacancy := range vacancy {
-    //     var company models.Company
-    //     if err := databases.DB.Where("id = ?", vacancy.IDCompany).First(&company).Error; err != nil {
-    //         company = models.Company{}
-    //     }
-		
-    //     response = append(response, models.IVacancy{
-    //         ID:          vacancy.ID,
-    //         NameVacancy: vacancy.NameVacancy,
-    //         Description: vacancy.Description,
-    //         Location:    vacancy.Location,
-    //         Qty:         vacancy.Qty,
-    //         Salary:      vacancy.Salary,
-    //         DateEnd:     vacancy.DateEnd,
-    //         DateStart:   vacancy.DateStart,
-    //         Status:      vacancy.Status,
-    //         IDCompany:   vacancy.IDCompany,
-    //         Company:     company,
-    //     })
-    // }
-	return c.JSON(fiber.Map{"data":vacancy})
 
+func GetVacancyCompany(c *fiber.Ctx) error{
+	    companyID := c.Params("id")
+		 var vacancies []struct {
+        models.VacancyCompanyApplication          
+        ApplicationCount int64 `json:"application_count"` 
+    }
+		err := databases.DB.
+        Table("vacancies").
+        Select(`
+            vacancies.id,
+            vacancies.name_vacancy,
+            vacancies.date_end,
+            vacancies.type,
+            vacancies.category,
+			vacancies.status,
+            COUNT(applications.id) AS application_count
+        `).
+        Joins("LEFT JOIN applications ON applications.id_vacancy = vacancies.id").
+        Where("vacancies.status = ?", "Open").
+        Where("vacancies.id_company = ?", companyID).
+        Group(`
+            vacancies.id,
+            vacancies.name_vacancy,
+            vacancies.date_end,
+            vacancies.type,
+            vacancies.category,
+			vacancies.status
+        `).
+        Order("vacancies.id DESC").
+        Find(&vacancies).Error
+
+    if err != nil {
+        return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+            "error": "Failed to fetch vacancies",
+            "details": err.Error(),
+        })
+    }
+
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"data":vacancies,
+	})
 }
 
 func DetailVacancy(c *fiber.Ctx) error{
 	id := c.Params("id")
 	var vacancy models.Vacancy
+	var vacancyOther []models.Vacancy
 		if err := databases.DB.Preload("Company").Where("vacancies.id = ?",id).Find(&vacancy).Error; err != nil {
 		return c.Status(500).JSON(fiber.Map{"message": "Gagal mengambil data"})
 	}
 	
+	if err:= databases.DB.Preload("Company").Where("vacancies.category = ?", vacancy.Category).Limit(5).Find(&vacancyOther).Error; err != nil{
+		return c.Status(500).JSON(fiber.Map{"message": "Gagal mengambil data"})
+	} 
+
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"message":"Detail Vacancy",
-		"data":vacancy,
+		"data":fiber.Map{
+			"data":vacancy,
+			"other":vacancyOther,
+		},
 	})
 }
 
@@ -134,11 +156,11 @@ func UpdateVacancy(c *fiber.Ctx) error{
 		return c.SendStatus(fiber.StatusBadRequest)
 	}
 
-	if err := utils.ValidateStruct(c, &input); err != nil{
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"errors": err,
-		})
-	}
+	// if err := utils.ValidateStruct(c, &input); err != nil{
+	// 	return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+	// 		"errors": err,
+	// 	})
+	// }
 
 	if databases.DB.Model(&vacancy).Where("id = ?",id).Updates(&input).RowsAffected == 0{
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"message":"Gagal mengubah vacancy"})

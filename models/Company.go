@@ -21,3 +21,13 @@ type ICompanyVacancy struct {
 	Description string    `json:"description"`
 	Vacancy     []Vacancy `json:"vacancy"`
 }
+
+type UpdateCompany struct {
+	ID          int64  `json:"id" `
+	CompanyName string `json:"company_name" form:"company_name"`
+	CompanyType string `json:"company_type" form:"company_type"`
+	Location    string `json:"location" form:"location"`
+	Size        int64  `json:"size" form:"size"`
+	Photo       string `json:"photo" form:"photo"`
+	Description string `json:"description" form:"description"`
+}

@@ -18,8 +18,8 @@ func SetupRoutes(app *fiber.App){
 
 	api.Get("profile/:id",controllers.GetProfile)
 
-	api.Get("vacancy",controllers.SearchFilterVacancy)
-	// api.Get("vacancy/searchfilter",controllers.SearchFilterVacancy)
+	api.Get("vacancy",controllers.GetVacancy)
+	api.Get("vacancy/company/:id",controllers.GetVacancyCompany)
 	api.Get("vacancy/:id",controllers.DetailVacancy)
 
 	api.Get("category",controllers.CategoryController)
@@ -27,7 +27,7 @@ func SetupRoutes(app *fiber.App){
 	api.Get("company",controllers.GetCompany)
 	api.Get("company/search",controllers.SearchCompany)
 	api.Get("company/:id",controllers.DetailCompany)
-
+	api.Get("dashboard",controllers.DashboardApplication)
 	apiExperience := api.Group("/experience")
 	apiExperience.Get("/:id",controllers.DetailExperience)
 	apiExperience.Post("/", controllers.InsertExperience)
@@ -44,6 +44,7 @@ func SetupRoutes(app *fiber.App){
 	apiVacancy.Post("/",controllers.InsertVacancy)
 	apiVacancy.Put("/:id",controllers.UpdateVacancy)
 	apiVacancy.Delete("/:id",controllers.DeleteVacancy)
+
 	
 	apiCompany := protectedRoute.Group("/company")
 	apiCompany.Post("/",controllers.InsertCompany)

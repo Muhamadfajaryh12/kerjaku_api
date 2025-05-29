@@ -13,3 +13,27 @@ type Application struct {
 	Profile     Profile   `gorm:"foreignKey:IDProfile" json:"profile"`
 	Vacancy     Vacancy   `gorm:"foreignKey:IDVacancy" json:"vacancy"`
 }
+
+type UpdateApplication struct{
+	Status string `form:"status" json:"status"`
+	Note   string `form:"note" json:"note"`
+}
+
+type DashboardApplication struct {
+	TotalData struct{
+		TotalApplicant int64 `json:"total_applicant"`
+		TotalWaiting   int64 `json:"total_waiting"`
+		TotalAssesment	int64 `json:"total_assesment"`
+		TotalInterview int64 `json:"total_interview"`
+		TotalCompleted int64 `json:"total_completed"`
+		TotalRejected int64 `json:"total_rejected"`
+	} `json:"total_data"`
+	TotalApplicantByName[] struct{
+		NameVacancy string `json:"name_vacancy"`
+        Count       int64  `json:"count"`
+	}`json:"total_applicant_by_name"`
+	TotalApplicantByMonth[] struct{
+		NameMonth string `json:"name_month"`
+		Count int64 `json:"count"`
+	}
+}

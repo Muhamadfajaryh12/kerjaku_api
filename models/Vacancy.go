@@ -43,10 +43,22 @@ type IVacancy struct {
 	Company 	Company	  `json:"company"`
 }
 
+
 type VacancyFilter struct {
 	Search 	string `query:"search"`
 	Location string `query:"location"`
 	Status   string `query:"status"`
     Category string `query:"category"`
 	Type 	 string `query:"type"`
+	Company  string `query:"company"`
+}
+
+type VacancyCompanyApplication struct{
+	ID int64 `json:"id"`
+	NameVacancy string `json:"name_vacancy"`
+	DateEnd time.Time `json:"date_end"`
+	Status string `json:"status"`
+	Type string `json:"type"`
+	Category string `json:"category"`
+	ApplicationCount int64 `json:"application_count"`
 }

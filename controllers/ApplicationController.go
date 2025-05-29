@@ -11,7 +11,6 @@ import (
 )
 
 func InsertApplication(c *fiber.Ctx) error {
-	var application models.Application
 	var input models.Application
 
 	coverLetter, err := c.FormFile("cover_letter")
@@ -28,13 +27,12 @@ func InsertApplication(c *fiber.Ctx) error {
 		return c.Status(400).JSON(fiber.Map{"message":err.Error()})
 	}
 
-	input.Status = "Menunggu"
+	input.Status = "Waiting"
 	input.Date = time.Now()
-	databases.DB.Create(&input).Find(&application)
+	databases.DB.Create(&input)
 	
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
 		"message":"Berhasil melamar pekerjaan",
-		"data":application,
 	})
 }
 
@@ -61,7 +59,7 @@ func GetDetailApplication(c *fiber.Ctx) error{
 		id := c.Params("id")
 		var application models.Application
 
-		databases.DB.Where("id",id).Preload("Profile.Experience").Find(&application)
+		databases.DB.Where("id = ?",id).Preload("Profile.Experience").Find(&application)
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{
 			"message":"Detail application",
 			"data":application,
@@ -69,7 +67,7 @@ func GetDetailApplication(c *fiber.Ctx) error{
 }
 func UpdateApplication(c *fiber.Ctx) error{
 	id:= c.Params("id")
-	var input models.Application
+	var input models.UpdateApplication
 	var application models.Application
 	
 	if err := c.BodyParser(&input); err != nil{
@@ -98,6 +96,7 @@ func DeleteApplication(c *fiber.Ctx) error {
 	
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"message":"Berhasil menghapus application",
-		"data":application,
+		"data":id,
 	})
 }
+

@@ -49,6 +49,8 @@ func Login(c *fiber.Ctx) error{
 	var user models.User
 	var input  models.User
 	var profile models.Profile
+	var company models.Company
+
 	if err := c.BodyParser(&input); err != nil{
 		return c.Status(fiber.StatusBadRequest).SendString("Bad Request")
 	}
@@ -75,11 +77,13 @@ func Login(c *fiber.Ctx) error{
 	}
 
 	databases.DB.Where("id_user",user.ID).First(&profile)
-	
+	databases.DB.Where("id_user",user.ID).First(&company)
+
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"message":"Login berhasil",
 		"token":token,
 		"id":user.ID,
 		"id_profile":profile.ID,
+		"id_company":company.ID,
 	})
 }
