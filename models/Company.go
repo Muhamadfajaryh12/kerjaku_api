@@ -31,3 +31,9 @@ type UpdateCompany struct {
 	Photo       string `json:"photo" form:"photo"`
 	Description string `json:"description" form:"description"`
 }
+
+type CompanyFilter struct {
+	Search   string `query:"search"`
+	Location string `query:"location"`
+	Type     string `query:"type"`
+}

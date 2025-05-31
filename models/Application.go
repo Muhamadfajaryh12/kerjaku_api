@@ -35,5 +35,5 @@ type DashboardApplication struct {
 	TotalApplicantByMonth[] struct{
 		NameMonth string `json:"name_month"`
 		Count int64 `json:"count"`
-	}
+	}`json:"total_applicant_by_month"`
 }

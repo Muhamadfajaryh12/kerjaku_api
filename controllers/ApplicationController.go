@@ -59,7 +59,7 @@ func GetDetailApplication(c *fiber.Ctx) error{
 		id := c.Params("id")
 		var application models.Application
 
-		databases.DB.Where("id = ?",id).Preload("Profile.Experience").Find(&application)
+		databases.DB.Where("id = ?",id).Preload("Profile.Experience").Preload("Vacancy.Company").Find(&application)
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{
 			"message":"Detail application",
 			"data":application,

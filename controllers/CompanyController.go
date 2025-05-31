@@ -34,10 +34,42 @@ func InsertCompany(c *fiber.Ctx) error {
 }
 
 func GetCompany(c *fiber.Ctx) error{
+	var filter models.CompanyFilter
+	c.QueryParser(&filter)
+
 	var company []models.Company
-	if err := databases.DB.Find(&company).Error; err != nil {
-		return c.Status(500).JSON(fiber.Map{"message": "Gagal mengambil data"})
+
+	query := databases.DB
+	
+	if filter.Location != ""{
+		locations := strings.Split(filter.Location,",")
+		if len(locations) > 1{
+			query = query.Where("companies.location IN ? ",locations)
+		}else{
+			query = query.Where("companies.location = ? ", filter.Location)
+		}
 	}
+
+	if filter.Type != ""{
+		types := strings.Split(filter.Type,",")
+		if len(types) > 1 {
+			query = query.Where("companies.company_type IN ?", types)
+		}else {
+			query = query.Where ("companies.company_type = ?",filter.Type)
+		}
+	}
+
+	if filter.Search != ""{
+			query = query.Where("companies.company_name LIKE ?", "%"+filter.Search+"%")
+	} 
+
+	
+    if err := query.Find(&company).Error; err != nil {
+        return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+            "error": "Failed to fetch companies",
+        })
+    }
+
 		return c.JSON(fiber.Map{"data":company})
 }
 
@@ -109,7 +141,7 @@ func DetailCompany(c *fiber.Ctx) error{
 			return c.Status(fiber.ErrBadRequest.Code).JSON(fiber.Map{"message":"Data tidak ditemukan"})
 	}
 
-	 databases.DB.Where("id_company", id).Find(&vacancy)
+	 databases.DB.Where("id_company", id).Preload("Company").Find(&vacancy)
 
 	 response := models.ICompanyVacancy{
 		ID:          company.ID,

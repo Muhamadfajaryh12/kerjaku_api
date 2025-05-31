@@ -23,6 +23,7 @@ func SetupRoutes(app *fiber.App){
 	api.Get("vacancy/:id",controllers.DetailVacancy)
 
 	api.Get("category",controllers.CategoryController)
+	api.Get("category/company",controllers.CategoryCompanyController)
 
 	api.Get("company",controllers.GetCompany)
 	api.Get("company/search",controllers.SearchCompany)

@@ -45,5 +45,5 @@ func DashboardApplication(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.JSON(application)
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"data":application})
 }

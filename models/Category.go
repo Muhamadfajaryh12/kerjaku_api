@@ -3,6 +3,10 @@ package models
 type CategoryData struct {
 	Locations  []string `json:"location"`
 	Types      []string `json:"type"`
-	Statuses   []string `json:"status"`
 	Categories []string `json:"category"`
+}
+
+type CategoryCompanyData struct {
+	CompanyType []string `json:"type"`
+	Location    []string `json:"location"`
 }
