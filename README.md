@@ -1,7 +1,5 @@
 <h6>Menjalankan project dengan</h6>
-<span style="color:red">Merah</span>, <span style="color:blue">Biru</span>
-  air
-</div>
+<p>air</p>
 <h1>Dokumentasi API</h1>
 <table>
   <thead>
