@@ -4,7 +4,7 @@ type Language struct {
 	ID       int `gorm:"primaryKey;autoIncrement"`
 	Language string
 	Level    string
-	IDuser   uint
+	UserID   uint
 }
 
 type LanguageForm struct {

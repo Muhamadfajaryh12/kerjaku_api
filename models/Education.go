@@ -7,7 +7,7 @@ type Education struct {
 	EducationName string
 	Major         string
 	GraduateDate  time.Time
-	IDUser uint
+	UserID uint
 }
 
 type EducationForm struct {

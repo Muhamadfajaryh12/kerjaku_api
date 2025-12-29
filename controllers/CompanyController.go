@@ -24,7 +24,7 @@ func InsertCompany(c *fiber.Ctx) error {
 		}
 		company.Photo = photoPath
 	}
-	company.IDUser =int64( userID)
+	company.UserID =int64( userID)
 	if err := utils.ValidateStruct(c,&company); err != nil{
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"errors": err,

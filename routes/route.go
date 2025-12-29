@@ -60,4 +60,11 @@ func SetupRoutes(app *fiber.App){
 	apiApplication.Delete("/:id",controllers.DeleteApplication)
 
 
+	apiEducation := protectedRoute.Group("/education")
+	apiEducation.Post("/", controllers.InsertEducation)
+	apiEducation.Delete("/:id",controllers.DeleteEducation)
+
+	apiLanguage := protectedRoute.Group("/language")
+	apiLanguage.Post("/",controllers.InsertLanguage)
+	apiLanguage.Delete("/:id",controllers.DeleteLanguage)
 }

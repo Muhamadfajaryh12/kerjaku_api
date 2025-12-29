@@ -9,27 +9,30 @@ import (
 
 func InsertEducation(c *fiber.Ctx) error {
 	var input models.EducationForm
-
+	userID := c.Locals("user_id").(float64)
 	if err := c.BodyParser(&input); err != nil {
 		return c.SendStatus(fiber.StatusBadRequest)
 	}
 
-	if err:= databases.DB.Create(&input); err != nil {
-		return c.SendStatus(fiber.StatusInternalServerError)
-	}
-
-	return c.JSON(input)
-}
-
-func GetEducation(c *fiber.Ctx) error {
-	var education []models.EducationForm
 	
-	if err := databases.DB.Find(&education); err !nil {
+	education = models.Education{
+		EducationName: input.EducationName,
+		Major:         input.Major,
+		GraduateDate:  input.GraduateDate,
+		UserID:       int64(userID),
+	}
+
+	if err:= databases.DB.Create(&education); err != nil {
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
 
-	return c.JSON(education)
+
+	return c.Status(201).JSON(fiber.Map{
+		"message":"berhasil menambahkan pendidikan",
+		"data":education
+	})
 }
+
 
 func DeleteEducation(c *fiber.Ctx) error {
 	var education models.Education
