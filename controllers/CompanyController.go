@@ -11,6 +11,8 @@ import (
 
 func InsertCompany(c *fiber.Ctx) error {
 	var company models.Company
+	userID := c.Locals("user_id").(float64)
+
 	if err := c.BodyParser(&company) ; err != nil{
 		return c.SendStatus(fiber.StatusBadRequest)
 	}
@@ -22,7 +24,7 @@ func InsertCompany(c *fiber.Ctx) error {
 		}
 		company.Photo = photoPath
 	}
-
+	company.IDUser =int64( userID)
 	if err := utils.ValidateStruct(c,&company); err != nil{
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"errors": err,

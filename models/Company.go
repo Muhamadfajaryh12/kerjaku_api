@@ -8,7 +8,7 @@ type Company struct {
 	Size        int64  `gorm:"type:int" form:"size" json:"size" validate:"required"`
 	Photo       string `gorm:"type:varchar(255)" form:"photo" json:"photo" validate:"required"`
 	Description string `gorm:"type:varchar(255)" form:"description" json:"description" validate:"required"`
-	IDUser      int64  `gorm:"index" json:"id_user" form:"id_user" validate:"required"`
+	IDUser      int64  `gorm:"index" json:"id_user"`
 }
 
 type ICompanyVacancy struct {

@@ -9,6 +9,5 @@ type Experience struct {
 	DateStart      time.Time `gorm:"type:date" form:"date_start" json:"date_start" validate:"required"`
 	DateEnd		   time.Time `gorm:"type:date" form:"date_end" json:"date_end" validate:"required"`
 	Position	   string	 `gorm:"type:varchar(255)" form:"position" json:"position" validate:"required"`
-	Description    string    `gorm:"varchar(255)" form:"description" json:"description" validate:"required"`
 	IDProfile      int64   `gorm:"index" form:"id_profile" json:"id_profile"`
 }
