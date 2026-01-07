@@ -9,22 +9,36 @@ import (
 )
 
 func InsertExperience(c *fiber.Ctx) error {
-	var experience models.Experience
-	if err := c.BodyParser(&experience) ; err != nil{
+	var input models.ExperienceForm
+	userID := c.Locals("user_id").(float64)
+	if err := c.BodyParser(&input) ; err != nil{
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"message":err,
 		})
 	}
 
-	if err := utils.ValidateStruct(c,&experience); err != nil{
+	if err := utils.ValidateStruct(c,&input); err != nil{
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"errors": err,
 		})
 	}
 
-	databases.DB.Create(&experience)
+	experience := models.Experience{
+		NameCompany: input.NameCompany,
+		NameExperience: input.NameExperience,
+		DateStart: input.DateStart,
+		DateEnd: input.DateEnd,
+		Position: input.Position,
+		UserID: uint(userID),
+	}
+
+	if err := databases.DB.Create(&experience).Error ; err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"message":err.Error()})
+	}
+
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
 		"message":"Berhasil menambahkan experience",
+		"data":experience,
 	})
 }
 

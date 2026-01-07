@@ -7,15 +7,24 @@ import (
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
-	"gorm.io/gorm"
 )
 
 func InsertProfile(c *fiber.Ctx) error{
 	var input models.Profile
-	var profile models.Profile
-
+	userID := c.Locals("user_id").(float64)
 	if err := c.BodyParser(&input) ; err != nil{
 		return c.Status(400).JSON(fiber.Map{"message":"invalid request"})
+	}
+
+	profile := models.Profile{
+		Name: input.Name,
+		Address: input.Address,
+		Birth: input.Birth,
+		Phone: input.Phone,
+		Email: input.Email,
+		Gender: input.Gender,
+		Summary: input.Summary,
+		UserID: uint(userID),
 	}
 
 	cvUpload, err := c.FormFile("cv")
@@ -25,7 +34,7 @@ func InsertProfile(c *fiber.Ctx) error{
 		if err!= nil{
 			return c.Status(500).JSON(fiber.Map{"message":"Invalid "})
 		}
-		input.CV = cvPath
+		profile.CV = cvPath
 	}
 	
 	photoUpload, err := c.FormFile("photo")
@@ -34,18 +43,19 @@ func InsertProfile(c *fiber.Ctx) error{
 		if err!= nil{
 			return c.Status(500).JSON(fiber.Map{"message":"Invalid "})
 		}
-		input.Photo = photoPath
+		profile.Photo = photoPath
 	}
 
 	if err := utils.ValidateStruct(c,&input); err != nil{
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"errors": err,
+			"message": err,
 		})
 	}
 
+	if err := databases.DB.Create(&profile).Error; err != nil {
+		c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"message":err.Error()})
+	}
 
-	databases.DB.Create(&input)
-	databases.DB.Where("id_user", input.IDUser).First(&profile)
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
 		"message":"Berhasil membuat profile",
 		"data":profile,
@@ -54,26 +64,47 @@ func InsertProfile(c *fiber.Ctx) error{
 }
 
 func GetProfile(c *fiber.Ctx) error{
-	var profile models.Profile
-	id := c.Params("id")
-	    if err := databases.DB.
-        Preload("Experience").
-        Where("id_user = ?", id).
-		Omit("Application").
-        First(&profile).Error; err != nil {
-        
-        switch err {
-        case gorm.ErrRecordNotFound:
-            return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-                "message": "Profile not found",
-            })
-        default:
-            return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-                "message": "Error retrieving profile",
-                "error":   err.Error(),
-            })
-        }
-    }
+	userID := c.Locals("user_id").(float64)
+
+	var education []models.Education
+	if err := databases.DB.Where("user_id = ?", userID).Find(&education).Error; err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"message":err.Error()})
+	}
+
+	var language []models.Language
+	if err := databases.DB.Where("user_id = ?",userID).Find(&language).Error; err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"message":err.Error()})
+	}
+
+	var certification []models.Certification
+	if err := databases.DB.Where("user_id = ?",userID).Find(&certification).Error; err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"message":err.Error()})
+	}
+
+	var skill []models.Skill
+	if err := databases.DB.Where("user_id = ?",userID).Find(&skill).Error; err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"message":err.Error()})
+	}
+
+	var experience []models.Experience
+	if err := databases.DB.Where("user_id = ?",userID).Find(&experience).Error; err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"message":err.Error()})
+	}
+
+	var profiles models.Profile
+	if err := databases.DB.Where("user_id = ?",userID).Find(&profiles).Error; err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"message":err.Error()})
+	}
+
+	profile := models.ProfileResponse{
+		Education: education,
+		Language: language,
+		Certification: certification,
+		Skill: skill,
+		Experience: experience,
+		Profile: profiles,
+	}
+
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"data":profile})
 }
 

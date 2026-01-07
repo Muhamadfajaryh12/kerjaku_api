@@ -11,25 +11,29 @@ func InsertEducation(c *fiber.Ctx) error {
 	var input models.EducationForm
 	userID := c.Locals("user_id").(float64)
 	if err := c.BodyParser(&input); err != nil {
-		return c.SendStatus(fiber.StatusBadRequest)
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message":err.Error(),
+		})
 	}
 
 	
-	education = models.Education{
+	education := models.Education{
 		EducationName: input.EducationName,
 		Major:         input.Major,
 		GraduateDate:  input.GraduateDate,
-		UserID:       int64(userID),
+		Level:input.Level,
+		UserID:       uint(userID),
 	}
 
-	if err:= databases.DB.Create(&education); err != nil {
-		return c.SendStatus(fiber.StatusInternalServerError)
-	}
+	if err:= databases.DB.Create(&education).Error; err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message":err.Error(),
+		})	}	
 
 
 	return c.Status(201).JSON(fiber.Map{
 		"message":"berhasil menambahkan pendidikan",
-		"data":education
+		"data":education,
 	})
 }
 
@@ -39,15 +43,19 @@ func DeleteEducation(c *fiber.Ctx) error {
 	id := c.Params("id")
 
 	if err := databases.DB.Where("id = ?",id).First(&education); err != nil {
-		return c.Status(fiber.StatusInternalServerError)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message":err,
+		})
 	}
 
 	if err := databases.DB.Delete(&education, id); err != nil {
-		return c.Status(fiber.StatusInternalServerError)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message":err,
+		})	
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"message":"berhasil menghabpus pendidikan",
-		"id":id
+		"id":id,
 	})
 }

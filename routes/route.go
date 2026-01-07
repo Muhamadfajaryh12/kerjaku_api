@@ -16,7 +16,6 @@ func SetupRoutes(app *fiber.App){
 	api.Post("/register",controllers.Register)
 	api.Post("/login",controllers.Login)
 
-	api.Get("profile/:id",controllers.GetProfile)
 
 	api.Get("vacancy",controllers.GetVacancy)
 	api.Get("vacancy/company/:id",controllers.GetVacancyCompany)
@@ -29,15 +28,18 @@ func SetupRoutes(app *fiber.App){
 	api.Get("company/search",controllers.SearchCompany)
 	api.Get("company/:id",controllers.DetailCompany)
 	api.Get("dashboard",controllers.DashboardApplication)
-	apiExperience := api.Group("/experience")
+
+	
+	protectedRoute := api.Use(middlewares.AuthorizationMiddleware())
+	
+	apiExperience := protectedRoute.Group("/experience")
 	apiExperience.Get("/:id",controllers.DetailExperience)
 	apiExperience.Post("/", controllers.InsertExperience)
 	apiExperience.Put("/:id",controllers.UpdateExperience)
 	apiExperience.Delete("/:id",controllers.DeleteExperience)
 
-	protectedRoute := api.Use(middlewares.AuthorizationMiddleware())
-
 	apiProfile := protectedRoute.Group("/profile")
+	apiProfile.Get("/",controllers.GetProfile)
 	apiProfile.Post("/",controllers.InsertProfile)
 	apiProfile.Put("/:id", controllers.UpdateProfile)
 
@@ -67,4 +69,10 @@ func SetupRoutes(app *fiber.App){
 	apiLanguage := protectedRoute.Group("/language")
 	apiLanguage.Post("/",controllers.InsertLanguage)
 	apiLanguage.Delete("/:id",controllers.DeleteLanguage)
+
+	apiCertification := protectedRoute.Group("/certification")
+	apiCertification.Post("/",controllers.InsertCertification)
+
+	apiSkill := protectedRoute.Group("/skill")
+	apiSkill.Post("/",controllers.InsertSkill)
 }

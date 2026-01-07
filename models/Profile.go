@@ -4,17 +4,35 @@ import "time"
 
 type Profile struct {
 	ID          int64         `gorm:"primaryKey;autoIncrement" json:"id"`
-	Name        string        `gorm:"type:varchar(255)" form:"name" json:"name" validate:"required"`
-	Summary     string        `gorm:"type:varchar(255)" form:"summary" json:"summary" validate:"required"`
-	Education   string        `gorm:"type:varchar(255)" form:"education" json:"education" validate:"required"`
-	Address     string        `gorm:"type:varchar(255)" form:"address" json:"address" validate:"required"`
-	Phone       int64         `gorm:"type:bigint" form:"phone" json:"phone" validate:"required"`
-	Birth       time.Time     `gorm:"type:date" form:"birth" json:"birth" validate:"required"`
-	Email       string        `gorm:"type:varchar(255)" form:"email" json:"email" validate:"required"`
-	Skills      []string      `gorm:"type:text;serializer:json" form:"skills" json:"skills" validate:"required"`
-	CV          string        `gorm:"type:varchar(255)" form:"cv" json:"cv" validate:"required"`
-	Photo       string        `gorm:"type:varchar(255)" form:"photo" json:"photo" validate:"required"`
-	IDUser      int64         `gorm:"type:bigint" json:"id_user" form:"id_user" validate:"required"`
-	Experience  []Experience  `gorm:"foreignKey:IDProfile;" json:"experience"`
-	Application []Application `gorm:"foreignKey:IDProfile" json:"application"`
+	Name        string         `json:"name"`
+	Summary     string        `json:"summary"`
+	Address     string        `json:"address"`
+	Phone       int64         `json:"phone"`
+	Birth       time.Time     `json:"birth"`
+	Email       string       `json:"email"`
+	CV          string        `json:"cv"`
+	Photo       string      	`json:"photo"`
+	Gender 		string 			`json:"gender"`
+	UserID      uint          `json:"user_id"`	
+}
+
+type ProfileForm struct {
+	Name        string         	`json:"name" form:"name" validate:"required"`
+	Summary     string       	`json:"summary" form:"summary" validate:"required"`
+	Address     string        	`json:"address" form:"address" validate:"required"`
+	Phone       int64         	`json:"phone" form:"phone" validate:"required"`
+	Birth       time.Time     	`json:"birth" form:"birth" validate:"required"`
+	Email       string       	`json:"email" form:"email" validate:"required"`
+	CV          string        	`json:"cv" form:"cv" validate:"required"`
+	Photo       string      	`json:"photo" form:"photo" validate:"required"`
+	Gender 		string 			`json:"gender" form:"gender" validate:"required"`
+}
+
+type ProfileResponse struct {
+	Profile Profile `json:"profile"`
+	Education []Education `json:"education"`
+	Language []Language `json:"language"`
+	Certification []Certification `json:"certification"`
+	Skill []Skill `json:"skill"`
+	Experience []Experience `json:"experience"`
 }
