@@ -72,7 +72,9 @@ func SetupRoutes(app *fiber.App){
 
 	apiCertification := protectedRoute.Group("/certification")
 	apiCertification.Post("/",controllers.InsertCertification)
+	apiCertification.Delete("/:id",controllers.DeleteCertification)
 
 	apiSkill := protectedRoute.Group("/skill")
 	apiSkill.Post("/",controllers.InsertSkill)
+	apiSkill.Delete("/:id",controllers.DeleteSkill)
 }

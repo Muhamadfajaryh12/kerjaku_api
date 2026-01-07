@@ -28,3 +28,25 @@ func InsertSkill(c *fiber.Ctx) error {
 		"data":skill,
 	})
 }
+
+func DeleteSkill(c *fiber.Ctx) error {
+	var skill models.Skill
+	id := c.Params("id")
+
+	if err := databases.DB.Where("id = ?",id).First(&skill).Error; err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message":err.Error(),
+		})
+	}
+
+	if err := databases.DB.Delete(&skill).Error; err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message":err.Error(),
+		})	
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message":"berhasil menghabpus keterampilan",
+		"id":id,
+	})
+}

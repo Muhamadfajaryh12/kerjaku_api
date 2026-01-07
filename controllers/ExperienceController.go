@@ -91,7 +91,9 @@ func DeleteExperience(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"message":"experience tidak ditemukan"})
 	}
 
-	databases.DB.Delete(&experience,id)
+	if err:= databases.DB.Delete(&experience).Error; err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"message":err.Error()})
+	}
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"message:":"Berhasil menghapus experience",
 		"id":id,

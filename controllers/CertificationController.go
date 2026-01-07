@@ -32,3 +32,18 @@ func InsertCertification(c *fiber.Ctx) error{
 		"data":certification,
 	})
 }
+
+func DeleteCertification(c *fiber.Ctx) error{
+	var certification models.Certification
+	id := c.Params("id")
+
+	if err := databases.DB.Where("id = ?",id).Find(&certification).Error; err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"message":err.Error()})
+	}
+
+	if err:= databases.DB.Delete(&certification).Error;err!=nil{
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"message":err.Error()})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message":"berhasil menghapus sertifikat","id":id})
+}

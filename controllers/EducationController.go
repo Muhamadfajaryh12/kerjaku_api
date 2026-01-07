@@ -15,7 +15,6 @@ func InsertEducation(c *fiber.Ctx) error {
 			"message":err.Error(),
 		})
 	}
-
 	
 	education := models.Education{
 		EducationName: input.EducationName,
@@ -42,15 +41,15 @@ func DeleteEducation(c *fiber.Ctx) error {
 	var education models.Education
 	id := c.Params("id")
 
-	if err := databases.DB.Where("id = ?",id).First(&education); err != nil {
+	if err := databases.DB.Where("id = ?",id).First(&education).Error; err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"message":err,
+			"message":err.Error(),
 		})
 	}
 
-	if err := databases.DB.Delete(&education, id); err != nil {
+	if err := databases.DB.Delete(&education).Error; err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"message":err,
+			"message":err.Error(),
 		})	
 	}
 

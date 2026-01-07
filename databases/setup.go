@@ -2,7 +2,6 @@ package databases
 
 import (
 	"fmt"
-	"kerjaku/models"
 	"log"
 
 	"gorm.io/driver/sqlserver"
@@ -30,6 +29,6 @@ func ConnectionDatabase(){
 		// DB.Migrator().DropTable(&models.User{},&models.Company{},&models.Vacancy{},&models.Profile{},&models.Application{},&models.Experience{})
 		// DB.AutoMigrate(&models.User{},&models.Company{},&models.Vacancy{},&models.Profile{},&models.Application{},&models.Experience{},&models.Education{},
 		// 	&models.Language{})
-		DB.Migrator().DropTable(&models.Experience{},&models.Profile{})
-		DB.AutoMigrate(&models.Skill{},&models.Experience{},&models.Profile{})
+	// 	DB.Migrator().DropTable(&models.Experience{},&models.Profile{})
+	// 	DB.AutoMigrate(&models.Skill{},&models.Experience{},&models.Profile{})
 	}

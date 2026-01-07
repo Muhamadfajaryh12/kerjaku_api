@@ -39,20 +39,20 @@ func DeleteLanguage(c *fiber.Ctx) error {
 	var language models.Language
 	id := c.Params("id")
 
-	if err := databases.DB.Where("id = ?", id).First(&language); err != nil {
+	if err := databases.DB.Where("id = ?", id).First(&language).Error; err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"message": err,
+			"message": err.Error(),
 		})
 	}
 
-	if err := databases.DB.Delete(&language, id); err != nil {
+	if err := databases.DB.Delete(&language).Error; err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"message": err,
+			"message": err.Error(),
 		})
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"message": "berhasil menghapus bahasa",
-		"id":      id,
+		"id":id,
 	})
 }
