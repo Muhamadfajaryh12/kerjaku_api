@@ -9,9 +9,10 @@ import (
 
 var secretKey = []byte("secret")
 
-func GenerateToken(userID int64) (string, error) {
+func GenerateToken(userID int64, isComplete bool) (string, error) {
 	claims := jwt.MapClaims{}
 	claims["user_id"] = userID
+	claims["is_complete"] = isComplete
 	claims["exp"] = time.Now().Add(time.Hour * 24 * 30 ).Unix()
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256,claims)
 	return token.SignedString(secretKey)
